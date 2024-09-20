@@ -28418,15 +28418,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      方法二
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -83648,21 +83639,19 @@
 <p>另外，我们可以用一个二进制数来记录数字中出现过的数字，比如数字中出现了 $1$, $2$, $4$，那么对应的二进制数就是 $\underline{1}0\underline{1}\underline{1}0$。</p>
 <p>接下来，我们用记忆化搜索来实现数位 DP。从起点向下搜索，到最底层得到方案数，一层层向上返回答案并累加，最后从搜索起点得到最终的答案。</p>
 <p>基本步骤如下：</p>
-<ol>
-<li>将数字 $n$ 转为整型数组 $nums$，其中 $nums[0]$ 为最低位，而 $nums[i]$ 为最高位；</li>
-<li>
-<p>根据题目信息，设计函数 $dfs()$，对于本题，我们定义 $dfs(pos, mask, lead, limit)$，其中：</p>
-</li>
-<li>
-<p>参数 $pos$ 表示当前搜索到的数字的位数，从末位或者第一位开始，一般根据题目的数字构造性质来选择顺序。对于本题，我们选择从高位开始，因此 $pos$ 的初始值为数字的高位下标；</p>
-</li>
-<li>参数 $mask$ 表示当前数字中出现过的数字；</li>
-<li>参数 $lead$ 表示当前数字是否仅包含前导零；</li>
-<li>参数 $limit$ 表示当前可填的数字的限制，如果无限制，那么可以选择 $i \in [0,1,..9]$，否则，只能选择 $i \in [0,..nums[pos]]$。如果 $limit$ 为 <code>true</code> 且已经取到了能取到的最大值，那么下一个 $limit$ 同样为 <code>true</code>；如果 $limit$ 为 <code>true</code> 但是还没有取到最大值，或者 $limit$ 为 <code>false</code>，那么下一个 $limit$ 为 <code>false</code>。</li>
-</ol>
-<p>答案为 $dfs(0, 0, true, true)$。</p>
-<p>关于函数的实现细节，可以参考下面的代码。</p>
-<p>时间复杂度 $O(m \times 2^m \times 10)$，空间复杂度 $O(m \times 2^m)$。其中 $m$ 为数字 $n$ 的位数。</p>
+<p>我们将数字 $n$ 转为字符串 $s$，接下来，我们设计一个函数 $\textit{dfs}(i, \textit{mask}, \textit{lead}, \textit{limit})$，其中：</p>
+<ul>
+<li>数字 $i$ 表示当前处理的数字下标，从 $0$ 开始。</li>
+<li>数字 $\textit{mask}$ 表示当前数字中出现过的数字，用二进制数表示。其中 $\textit{mask}$ 的二进制的第 $j$ 位为 $1$ 表示数字 $j$ 出现过，为 $0$ 表示数字 $j$ 没有出现过。</li>
+<li>布尔值 $\textit{lead}$ 表示是否只包含前导零。</li>
+<li>布尔值 $\textit{limit}$ 表示当前位置是否受到上界的限制。</li>
+</ul>
+<p>函数的执行过程如下：</p>
+<p>如果 $i$ 大于等于 $m$，说明我们已经处理完了所有的位数，此时如果 $\textit{lead}$ 为真，说明当前的数字是前导零，我们应当返回 $0$；否则，我们应当返回 $1$。</p>
+<p>否则，我们计算当前位置的上界 $\textit{up}$，如果 $\textit{limit}$ 为真，则 $up$ 为 $s[i]$ 对应的数字，否则 $up$ 为 $9$。</p>
+<p>然后，我们在 $[0, \textit{up}]$ 的范围内枚举当前位置的数字 $j$，如果 $j$ 为 $0$ 且 $\textit{lead}$ 为真，我们递归计算 $\textit{dfs}(i + 1, \textit{mask}, \text{true}, \textit{limit} \wedge j = \textit{up})$；否则，如果 $\textit{mask}$ 的第 $j$ 位为 $0$，我们递归计算 $\textit{dfs}(i + 1, \textit{mask} \,|\, 2^j, \text{false}, \textit{limit} \wedge j = \textit{up})$。累加所有的结果即为答案。</p>
+<p>答案为 $n - \textit{dfs}(0, 0, \text{true}, \text{true})$。</p>
+<p>时间复杂度 $O(\log n \times 2^D \times D)$，空间复杂度 $O(\log n \times 2^D)$。其中 $D = 10$。</p>
 <p>相似题目：</p>
 <ul>
 <li><a href="https://github.com/doocs/leetcode/blob/main/solution/0200-0299/0233.Number%20of%20Digit%20One/README.md">233. 数字 1 的个数</a></li>
@@ -83691,434 +83680,23 @@
 <span class="normal">14</span>
 <span class="normal">15</span>
 <span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
+<span class="normal">17</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">numDupDigitsAtMostN</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">n</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">A</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-            <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">A</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">m</span> <span class="o">-</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-
-        <span class="n">vis</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span>
-        <span class="n">ans</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
-            <span class="n">ans</span> <span class="o">+=</span> <span class="mi">9</span> <span class="o">*</span> <span class="n">A</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="n">digits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">m</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
-            <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">v</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">vis</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
-                    <span class="n">ans</span> <span class="o">+=</span> <span class="n">A</span><span class="p">(</span><span class="mi">10</span> <span class="o">-</span> <span class="p">(</span><span class="n">m</span> <span class="o">-</span> <span class="n">i</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span>
-                <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">vis</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
-                <span class="k">break</span>
-            <span class="n">vis</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">ans</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">ans</span>
-</code></pre></div></td></tr></table></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kd">class</span> <span class="nc">Solution</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">numDupDigitsAtMostN</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span><span class="w"> </span><span class="n">digits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span>
-<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">digits</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span>
-<span class="w">            </span><span class="n">n</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">digits</span><span class="p">.</span><span class="na">size</span><span class="p">();</span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">ans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">9</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="kt">boolean</span><span class="o">[]</span><span class="w"> </span><span class="n">vis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">boolean</span><span class="o">[</span><span class="mi">10</span><span class="o">]</span><span class="p">;</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="o">--</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">digits</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
-<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vis</span><span class="o">[</span><span class="n">j</span><span class="o">]</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                    </span><span class="k">continue</span><span class="p">;</span>
-<span class="w">                </span><span class="p">}</span>
-<span class="w">                </span><span class="n">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">A</span><span class="p">(</span><span class="mi">10</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vis</span><span class="o">[</span><span class="n">v</span><span class="o">]</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="k">break</span><span class="p">;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">            </span><span class="n">vis</span><span class="o">[</span><span class="n">v</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="o">++</span><span class="n">ans</span><span class="p">;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">A</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></td></tr></table></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="w"> </span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">numDupDigitsAtMostN</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">ans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">        </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">digits</span><span class="p">;</span>
-<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">digits</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span>
-<span class="w">            </span><span class="n">n</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">digits</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
-<span class="w">        </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vis</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">9</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="o">~</span><span class="n">i</span><span class="p">;</span><span class="w"> </span><span class="o">--</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">digits</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
-<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">vis</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                    </span><span class="n">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">A</span><span class="p">(</span><span class="mi">10</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
-<span class="w">                </span><span class="p">}</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vis</span><span class="p">[</span><span class="n">v</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="k">break</span><span class="p">;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">            </span><span class="n">vis</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="o">++</span><span class="n">ans</span><span class="p">;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">A</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">A</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">};</span>
-</code></pre></div></td></tr></table></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">numDupDigitsAtMostN</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">f</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="kd">func</span><span class="w"> </span><span class="nx">f</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">digits</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kt">int</span><span class="p">{}</span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">digits</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">digits</span><span class="p">,</span><span class="w"> </span><span class="nx">n</span><span class="o">%</span><span class="mi">10</span><span class="p">)</span>
-<span class="w">        </span><span class="nx">n</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">10</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="nx">m</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">digits</span><span class="p">)</span>
-<span class="w">    </span><span class="nx">vis</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">([]</span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span>
-<span class="w">    </span><span class="nx">ans</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">m</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">9</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">A</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">m</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">--</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">v</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">digits</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
-<span class="w">        </span><span class="nx">j</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">m</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nx">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">v</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">vis</span><span class="p">[</span><span class="nx">j</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nx">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">A</span><span class="p">(</span><span class="mi">10</span><span class="o">-</span><span class="p">(</span><span class="nx">m</span><span class="o">-</span><span class="nx">i</span><span class="p">),</span><span class="w"> </span><span class="nx">i</span><span class="p">)</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">vis</span><span class="p">[</span><span class="nx">v</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">break</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="nx">vis</span><span class="p">[</span><span class="nx">v</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nx">ans</span><span class="o">++</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">ans</span>
-<span class="p">}</span>
-
-<span class="kd">func</span><span class="w"> </span><span class="nx">A</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">A</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span><span class="w"> </span><span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div></td></tr></table></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">numDupDigitsAtMostN</span><span class="p">(</span><span class="nx">n</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">f</span><span class="p">(</span><span class="nx">n</span><span class="p">);</span>
-<span class="p">}</span>
-
-<span class="kd">function</span><span class="w"> </span><span class="nx">f</span><span class="p">(</span><span class="nx">n</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">nums</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">;</span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;</span><span class="w"> </span><span class="nx">n</span><span class="p">;</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">10</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">nums</span><span class="p">[</span><span class="o">++</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mf">10</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">dp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Array</span><span class="p">.</span><span class="kr">from</span><span class="p">({</span><span class="w"> </span><span class="nx">length</span><span class="o">:</span><span class="w"> </span><span class="kt">11</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Array</span><span class="p">(</span><span class="mf">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mf">11</span><span class="p">).</span><span class="nx">fill</span><span class="p">(</span><span class="o">-</span><span class="mf">1</span><span class="p">));</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">dfs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">pos</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="nx">lead</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">pos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">lead</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">dp</span><span class="p">[</span><span class="nx">pos</span><span class="p">][</span><span class="nx">mask</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">dp</span><span class="p">[</span><span class="nx">pos</span><span class="p">][</span><span class="nx">mask</span><span class="p">];</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">up</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">pos</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mf">9</span><span class="p">;</span>
-<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="nx">ans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">up</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="nx">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="nx">mask</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nx">i</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="k">continue</span><span class="p">;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nx">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">dfs</span><span class="p">(</span><span class="nx">pos</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="p">,</span><span class="w"> </span><span class="nx">lead</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">up</span><span class="p">);</span>
-<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nx">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">dfs</span><span class="p">(</span><span class="nx">pos</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="mf">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="nx">i</span><span class="p">),</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">up</span><span class="p">);</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">limit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nx">dp</span><span class="p">[</span><span class="nx">pos</span><span class="p">][</span><span class="nx">mask</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ans</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">ans</span><span class="p">;</span>
-<span class="w">    </span><span class="p">};</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">dfs</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div></td></tr></table></div>
-</div>
-</div>
-</div>
-<!-- solution:end -->
-
-<!-- solution:start -->
-
-<h3 id="_3">方法二</h3>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:4"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Python3</label><label for="__tabbed_2_2">Java</label><label for="__tabbed_2_3">C++</label><label for="__tabbed_2_4">Go</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">numDupDigitsAtMostN</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">n</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="nd">@cache</span>
-        <span class="k">def</span> <span class="nf">dfs</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lead</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">pos</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">lead</span><span class="p">)</span> <span class="o">^</span> <span class="mi">1</span>
-            <span class="n">up</span> <span class="o">=</span> <span class="n">nums</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="k">if</span> <span class="n">limit</span> <span class="k">else</span> <span class="mi">9</span>
+        <span class="k">def</span> <span class="nf">dfs</span><span class="p">(</span><span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lead</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">lead</span> <span class="o">^</span> <span class="mi">1</span>
+            <span class="n">up</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">if</span> <span class="n">limit</span> <span class="k">else</span> <span class="mi">9</span>
             <span class="n">ans</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">up</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">mask</span> <span class="o">&gt;&gt;</span> <span class="n">i</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">lead</span><span class="p">:</span>
-                    <span class="n">ans</span> <span class="o">+=</span> <span class="n">dfs</span><span class="p">(</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">lead</span><span class="p">,</span> <span class="n">limit</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">==</span> <span class="n">up</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">ans</span> <span class="o">+=</span> <span class="n">dfs</span><span class="p">(</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mask</span> <span class="o">|</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">limit</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">==</span> <span class="n">up</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">up</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">lead</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">ans</span> <span class="o">+=</span> <span class="n">dfs</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">mask</span> <span class="o">&gt;&gt;</span> <span class="n">j</span> <span class="o">&amp;</span> <span class="mi">1</span> <span class="o">^</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">ans</span> <span class="o">+=</span> <span class="n">dfs</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mask</span> <span class="o">|</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">limit</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">==</span> <span class="n">up</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">ans</span>
 
-        <span class="n">nums</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">while</span> <span class="n">n</span><span class="p">:</span>
-            <span class="n">nums</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span> <span class="o">%</span> <span class="mi">10</span><span class="p">)</span>
-            <span class="n">n</span> <span class="o">//=</span> <span class="mi">10</span>
-        <span class="k">return</span> <span class="n">dfs</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">n</span> <span class="o">-</span> <span class="n">dfs</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -84153,52 +83731,34 @@
 <span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kd">class</span> <span class="nc">Solution</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="o">[]</span><span class="w"> </span><span class="n">nums</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">int</span><span class="o">[</span><span class="mi">11</span><span class="o">]</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">Integer</span><span class="o">[][]</span><span class="w"> </span><span class="n">dp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Integer</span><span class="o">[</span><span class="mi">11</span><span class="o">][</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">11</span><span class="o">]</span><span class="p">;</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kd">class</span> <span class="nc">Solution</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">char</span><span class="o">[]</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">Integer</span><span class="o">[][]</span><span class="w"> </span><span class="n">f</span><span class="p">;</span>
 
 <span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">numDupDigitsAtMostN</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<span class="w">        </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">valueOf</span><span class="p">(</span><span class="n">n</span><span class="p">).</span><span class="na">toCharArray</span><span class="p">();</span>
+<span class="w">        </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Integer</span><span class="o">[</span><span class="n">s</span><span class="p">.</span><span class="na">length</span><span class="o">][</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">10</span><span class="o">]</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">dfs</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">nums</span><span class="o">[++</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">dfs</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">dfs</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">lead</span><span class="p">,</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">limit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">dfs</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">lead</span><span class="p">,</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">limit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="na">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">lead</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">dp</span><span class="o">[</span><span class="n">pos</span><span class="o">][</span><span class="n">mask</span><span class="o">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">dp</span><span class="o">[</span><span class="n">pos</span><span class="o">][</span><span class="n">mask</span><span class="o">]</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">f</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">mask</span><span class="o">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">f</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">mask</span><span class="o">]</span><span class="p">;</span>
 <span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">up</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">s</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="sc">&#39;0&#39;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p">;</span>
 <span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">ans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">up</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">nums</span><span class="o">[</span><span class="n">pos</span><span class="o">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p">;</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">up</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">mask</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="k">continue</span><span class="p">;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">lead</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="n">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">dfs</span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">lead</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">up</span><span class="p">);</span>
-<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="n">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">dfs</span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">up</span><span class="p">);</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">up</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">dfs</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">mask</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">dfs</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">up</span><span class="p">);</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">limit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">dp</span><span class="o">[</span><span class="n">pos</span><span class="o">][</span><span class="n">mask</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
+<span class="w">            </span><span class="n">f</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">mask</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
@@ -84236,61 +83796,35 @@
 <span class="normal">28</span>
 <span class="normal">29</span>
 <span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="w"> </span><span class="p">{</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="w"> </span><span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">numDupDigitsAtMostN</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="k">private</span><span class="o">:</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="mi">11</span><span class="p">];</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">dp</span><span class="p">[</span><span class="mi">11</span><span class="p">][</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">11</span><span class="p">];</span>
-
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">memset</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">dp</span><span class="p">));</span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">nums</span><span class="p">[</span><span class="o">++</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">dfs</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">dfs</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">lead</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">limit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">lead</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">dp</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">dp</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="n">mask</span><span class="p">];</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">up</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">9</span><span class="p">;</span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">ans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">up</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mask</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">        </span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">to_string</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">f</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">];</span>
+<span class="w">        </span><span class="n">memset</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">f</span><span class="p">));</span>
+<span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">dfs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="k">auto</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">dfs</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">lead</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">limit</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">lead</span><span class="w"> </span><span class="o">^</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="w">            </span><span class="p">}</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">lead</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="n">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">dfs</span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">lead</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">up</span><span class="p">);</span>
-<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="n">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">dfs</span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">up</span><span class="p">);</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">mask</span><span class="p">];</span>
 <span class="w">            </span><span class="p">}</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">limit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">dp</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">up</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="sc">&#39;0&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">9</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">ans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">up</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">dfs</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">up</span><span class="p">);</span>
+<span class="w">                </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mask</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">^</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">dfs</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">up</span><span class="p">);</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">limit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">dfs</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">};</span>
 </code></pre></div></td></tr></table></div>
@@ -84336,60 +83870,106 @@
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">numDupDigitsAtMostN</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">f</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="kd">func</span><span class="w"> </span><span class="nx">f</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">nums</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kt">int</span><span class="p">{}</span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">nums</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span><span class="w"> </span><span class="nx">n</span><span class="o">%</span><span class="mi">10</span><span class="p">)</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="nx">dp</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[</span><span class="mi">11</span><span class="p">][</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">11</span><span class="p">]</span><span class="kt">int</span><span class="p">{}</span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">dp</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">dp</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nx">dp</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="nx">j</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">numDupDigitsAtMostN</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">s</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">strconv</span><span class="p">.</span><span class="nx">Itoa</span><span class="p">(</span><span class="nx">n</span><span class="p">))</span>
+<span class="w">    </span><span class="nx">m</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">f</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">([][]</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">m</span><span class="p">)</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">f</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">f</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">10</span><span class="p">)</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">f</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">f</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="nx">j</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">dfs</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span>
-<span class="w">    </span><span class="nx">dfs</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">pos</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">lead</span><span class="w"> </span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">pos</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">dfs</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">lead</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span>
+<span class="w">    </span><span class="nx">dfs</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">lead</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">m</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="nx">lead</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span>
 <span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">!</span><span class="nx">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">dp</span><span class="p">[</span><span class="nx">pos</span><span class="p">][</span><span class="nx">mask</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">dp</span><span class="p">[</span><span class="nx">pos</span><span class="p">][</span><span class="nx">mask</span><span class="p">]</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">!</span><span class="nx">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">f</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="nx">mask</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">f</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="nx">mask</span><span class="p">]</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="nx">up</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">9</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nx">up</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">pos</span><span class="p">]</span>
+<span class="w">            </span><span class="nx">up</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="sc">&#39;0&#39;</span><span class="p">)</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="nx">ans</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">up</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="nx">mask</span><span class="o">&gt;&gt;</span><span class="nx">i</span><span class="o">&amp;</span><span class="mi">1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="k">continue</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">lead</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nx">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">dfs</span><span class="p">(</span><span class="nx">pos</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="p">,</span><span class="w"> </span><span class="nx">lead</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">up</span><span class="p">)</span>
-<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nx">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">dfs</span><span class="p">(</span><span class="nx">pos</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="o">|</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">up</span><span class="p">)</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">up</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="nx">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">dfs</span><span class="p">(</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">up</span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">mask</span><span class="o">&gt;&gt;</span><span class="nx">j</span><span class="o">&amp;</span><span class="mi">1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">dfs</span><span class="p">(</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="o">|</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="nx">j</span><span class="p">),</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">up</span><span class="p">)</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">!</span><span class="nx">limit</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nx">dp</span><span class="p">[</span><span class="nx">pos</span><span class="p">][</span><span class="nx">mask</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">ans</span>
+<span class="w">            </span><span class="nx">f</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="nx">mask</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">ans</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">ans</span>
 <span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">dfs</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">nums</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">dfs</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">numDupDigitsAtMostN</span><span class="p">(</span><span class="nx">n</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">n</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Array</span><span class="p">.</span><span class="kr">from</span><span class="p">({</span><span class="w"> </span><span class="nx">length</span><span class="o">:</span><span class="w"> </span><span class="kt">m</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Array</span><span class="p">(</span><span class="mf">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mf">10</span><span class="p">).</span><span class="nx">fill</span><span class="p">(</span><span class="o">-</span><span class="mf">1</span><span class="p">));</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">dfs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">i</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="nx">lead</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">m</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">lead</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">f</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="nx">mask</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">f</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="nx">mask</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">up</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mf">9</span><span class="p">;</span>
+<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="nx">ans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">up</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">dfs</span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">up</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(((</span><span class="nx">mask</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nx">j</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">ans</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">dfs</span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">mask</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="mf">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="nx">j</span><span class="p">),</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">up</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">lead</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">limit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">f</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="nx">mask</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ans</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">ans</span><span class="p">;</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">dfs</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div></td></tr></table></div>
 </div>
